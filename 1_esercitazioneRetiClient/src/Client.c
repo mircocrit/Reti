@@ -1,13 +1,3 @@
-/*
- ============================================================================
- Name        : 1_esercitazioneRetiClient.c
- Author      : 
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
- ============================================================================
- */
-
 #if defined WIN32
 #include <winsock.h>
 #else
@@ -33,6 +23,7 @@ void ClearWinSock()
 	#endif
 }
 
+//messaggio da inviare al client: send(clientSocket, message, lungMessage, 0)
 int sendToClient(int clientSocket, const char *message)
 {
 	int lungMessage = strlen(message);
@@ -110,20 +101,23 @@ int main(void)
 
 	printf("\nPrima parola   ---> ");
 	scanf("%s",buf);
-	sendSuccess(cSocket,buf);
-	memset(buf,0,sizeof(buf));
+	sendSuccess(cSocket,buf);	//invio parola
+
+	memset(buf,0,sizeof(buf));	//reset memoria
 	printf("Seconda parola   ---> ");
 	scanf("%s",buf);
-	sendSuccess(cSocket,buf);
+	sendSuccess(cSocket,buf);	//invio parola
 	memset(buf,0,sizeof(buf));
+	//ricezione parole
+	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
+	buf[totByteRcv] = '\0';
+	printf("%s\n", buf);
 
-	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
-	buf[totByteRcv] = '\0';
-	printf("%s\n", buf);
 	memset(buf,0,sizeof(buf));
 	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
 	buf[totByteRcv] = '\0';
 	printf("%s\n", buf);
+
 	memset(buf,0,sizeof(buf));
 	/*
 	while(totByteRcv < stringLen)

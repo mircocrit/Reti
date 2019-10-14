@@ -1,12 +1,3 @@
-/*
- ============================================================================
- Name        : 1_esercitazioneReti.c
- Author      : 
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
- ============================================================================
- */
 #if defined WIN32
 #include <winsock.h>
 #else
@@ -33,7 +24,7 @@ void ClearWinSock()
 		WSACleanup();
 	#endif
 }
-
+//invio messaggio a client
 int sendToClient(int clientSocket, const char *message)
 {
 	int lungMessage = strlen(message);
@@ -52,7 +43,7 @@ void sendSuccess(int clientSocket, const char *message)
 	int success;
 	success = sendToClient(clientSocket, message);
 }
-
+//funzionalità da implemetare
 void ToUpper(char *message)
 {
 	int lung = strlen(message);
@@ -62,7 +53,7 @@ void ToUpper(char *message)
 		message[i] = toupper(message[i]);
 	}
 }
-
+//funzionalità da implemetare
 void ToLower(char *message)
 {
 	int lung = strlen(message);
@@ -72,7 +63,7 @@ void ToLower(char *message)
 		message[i] = tolower(message[i]);
 	}
 }
-
+//////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
 	int port;
@@ -146,20 +137,22 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 		printf("Hading a client %s\n", inet_ntoa(cad.sin_addr));
-
+		//invio messaggio di connessione avvenuta
 		sendSuccess(clientSocket,"Connessione avvenuta");
 
+		//ricezione da client parola 1
 		char word1[BUFFERSIZE], word2[BUFFERSIZE];
 		int totByteRcv = recv(clientSocket, word1, BUFFERSIZE - 1, 0);
 		word1[totByteRcv] = '\0';
 		printf("%s\n",word1);
+		//ricezione da client parola 2
 		totByteRcv = recv(clientSocket, word2, BUFFERSIZE - 1, 0);
 		word2[totByteRcv] = '\0';
 		printf("%s\n",word2);
-
+		//esecuzione funzionalità
 		ToUpper(word1);
 		ToLower(word2);
-
+		//invio parole modificate
 		sendSuccess(clientSocket, word1);
 		sendSuccess(clientSocket, word2);
 

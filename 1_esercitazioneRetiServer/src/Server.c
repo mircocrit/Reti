@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
 #define PROTOPORT 5193
 #define QLEN 6
 #define BUFFERSIZE 512
@@ -43,26 +44,19 @@ void sendSuccess(int clientSocket, const char *message)
 	int success;
 	success = sendToClient(clientSocket, message);
 }
-//funzionalità da implemetare
-void ToUpper(char *message)
-{
-	int lung = strlen(message);
-	int i;
-	for(i = 0; i < lung; i++)
-	{
-		message[i] = toupper(message[i]);
+//rest 1 quando non è un digit
+int checkNum(char *num){
+	int lung = strlen(num);
+
+	for(int i=0;i<lung;i++){
+		if(!isdigit(num[i])){
+			return 1;
+		}
 	}
+	return 0;
 }
-//funzionalità da implemetare
-void ToLower(char *message)
-{
-	int lung = strlen(message);
-	int i;
-	for(i = 0; i < lung; i++)
-	{
-		message[i] = tolower(message[i]);
-	}
-}
+
+
 //////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
@@ -136,25 +130,61 @@ int main(int argc, char *argv[])
 			ClearWinSock();
 			return 0;
 		}
+		/////////////////////////////////////////////////////////////////////
 		printf("Hading a client %s\n", inet_ntoa(cad.sin_addr));
+
 		//invio messaggio di connessione avvenuta
 		sendSuccess(clientSocket,"Connessione avvenuta");
+		///////////////////////////////////777
 
-		//ricezione da client parola 1
-		char word1[BUFFERSIZE], word2[BUFFERSIZE];
-		int totByteRcv = recv(clientSocket, word1, BUFFERSIZE - 1, 0);
-		word1[totByteRcv] = '\0';
-		printf("%s\n",word1);
-		//ricezione da client parola 2
-		totByteRcv = recv(clientSocket, word2, BUFFERSIZE - 1, 0);
-		word2[totByteRcv] = '\0';
-		printf("%s\n",word2);
+		float sol=0;
+		char op1[BUFFERSIZE], op2[BUFFERSIZE],result[BUFFERSIZE];
+		char letter;
+
+		//ricezione primo numero
+		int totByteRcv = recv(clientSocket, op1, BUFFERSIZE - 1, 0);
+		op1[totByteRcv] = '\0';
+
+
+		//ricezione secondo numero
+		totByteRcv = recv(clientSocket, op2, BUFFERSIZE - 1, 0);
+		op2[totByteRcv] = '\0';
+
+		//ricezione lettera
+		totByteRcv = recv(clientSocket, &letter, BUFFERSIZE - 1, 0);
+
 		//esecuzione funzionalità
-		ToUpper(word1);
-		ToLower(word2);
-		//invio parole modificate
-		sendSuccess(clientSocket, word1);
-		sendSuccess(clientSocket, word2);
+		if (checkNum(op1)==0 && checkNum(op2)==0){
+
+			switch(letter){
+				case 'a' : case'A':
+					sol= strtof(op1, NULL)+ strtof(op2,NULL);
+					sprintf(result, "Risultato dell'addizione: %.3f", sol);
+					break;
+
+				case 's': case 'S':
+					sol= strtof(op1, NULL) - strtof(op2,NULL);
+					sprintf(result, "Risultato della sottrazione: %.3f", sol);
+					break;
+
+				case 'm': case 'M':
+					sol= strtof(op1, NULL) * strtof(op2,NULL);
+					sprintf(result, "Risultato della moltiplicazione:  %.3f", sol);
+					break;
+
+				case 'd': case 'D':
+					sol= strtof(op1, NULL) / strtof(op2,NULL);
+					sprintf(result, "Risultato della divisione: %.3f", sol);
+					break;
+				default:
+					sprintf(result, "TERMINE PROCESSO CLIENT");
+					break;
+			}
+		}
+		else {
+			sprintf(result, "TERMINE PROCESSO CLIENT");}
+		sendSuccess(clientSocket, result);
+
 
 	}
 

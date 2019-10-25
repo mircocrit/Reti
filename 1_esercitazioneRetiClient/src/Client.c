@@ -1,3 +1,19 @@
+/*Progettare ed implementare un’applicazione TCP client/server conforme al seguente protocollo:
+1) Il client richiede la connessione al server.
+2) Stabilita la connessione, il server invia al client la stringa "connessione avvenuta".
+3) Il client stampa la stringa ricevuta; dopodiché, legge due stringhe di caratteri dallo standard input e le invia al server.
+4) Il server legge le stringhe inviate dal client
+- le visualizza sullo standard output
+- converte la prima stringa ricevuta tutta in MAIUSCOLO, la seconda tutta in minuscolo
+- invia le nuova stringhe al client
+- rimane in ascolto!
+5) Il client legge la risposta inviata dal server.
+- visualizza la risposta sullo standard output
+- chiude la connessione corrente
+- termina il processo
+*/
+
+
 #if defined WIN32
 #include <winsock.h>
 #else
@@ -80,61 +96,46 @@ int main(void)
 		return -1;
 	}
 
-	/*
-	char *inputString = "prova";
-	int stringLen = strlen(inputString);
 
-	if(send(cSocket, inputString, stringLen, 0) != stringLen)
-	{
-		errorHandler("send() sent a different number of bytes than expected.\n");
-		closesocket(cSocket);
-		ClearWinSock();
-		return -1;
-	}
-	*/
-
+	/////////////////////////////////////////////////////////////////////
 	int totByteRcv = 0;
-	char buf[BUFFERSIZE];
-	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
-	buf[totByteRcv] = '\0';
-	printf("%s", buf);
+	char message[BUFFERSIZE];
+	char op1[BUFFERSIZE],op2[BUFFERSIZE],res[BUFFERSIZE];
+	char oper;
 
-	printf("\nPrima parola   ---> ");
-	scanf("%s",buf);
-	sendSuccess(cSocket,buf);	//invio parola
+	///ricez conness avvenuta
+	totByteRcv = recv(cSocket, message, BUFFERSIZE -1, 0);
+	message[totByteRcv] = '\0';
+	printf("%s", message);
 
-	memset(buf,0,sizeof(buf));	//reset memoria
-	printf("Seconda parola   ---> ");
-	scanf("%s",buf);
-	sendSuccess(cSocket,buf);	//invio parola
-	memset(buf,0,sizeof(buf));
-	//ricezione parole
-	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
-	buf[totByteRcv] = '\0';
-	printf("%s\n", buf);
 
-	memset(buf,0,sizeof(buf));
-	totByteRcv = recv(cSocket, buf, BUFFERSIZE -1, 0);
-	buf[totByteRcv] = '\0';
-	printf("%s\n", buf);
+	///////////////invio dati////////////////////////////////
 
-	memset(buf,0,sizeof(buf));
-	/*
-	while(totByteRcv < stringLen)
-	{
-		if((byteReceived = recv(cSocket, buf, BUFFERSIZE -1, 0 )) <= 0)
-		{
-			errorHandler("recv() failed or connection closed prematurely\n");
-			closesocket(cSocket);
-			ClearWinSock();
-			return -1;
-		}
-		totByteRcv += byteReceived;
-		buf[byteReceived] = '\0';
-		printf("%s", buf);
-	}
-	*/
+	printf("\nPrimo numero   ---> ");
+	scanf("%s",op1);
+	sendSuccess(cSocket,op1);	//invio num
 
+	printf("Secondo numero   ---> ");
+	scanf("%s",op2);
+	sendSuccess(cSocket,op2);	//invio num
+
+	fflush(stdin);
+	printf("Lettera  ---> ");
+	oper=getchar();
+	sendSuccess(cSocket,&oper);	//invio oper
+
+
+
+
+	//////////////ricezione risultato/////////////////////////77
+	totByteRcv = recv(cSocket, res, BUFFERSIZE -1, 0);
+	res[totByteRcv] = '\0';
+
+	if ((strcmp(res, "TERMINE PROCESSO CLIENT")==0))	printf("chiusura connessione");
+	else												printf("%s\n", res);
+
+
+	/////////////////////////////////////////////////////////////////////
 	closesocket(cSocket);
 	ClearWinSock();
 	printf("\n");
